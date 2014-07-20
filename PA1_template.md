@@ -30,7 +30,8 @@ I will answer some questions about these data:
 
 
 
-```{r cache=TRUE}
+
+```r
 dir.create("data", showWarnings = FALSE)
 url = "http://d396qusza40orc.cloudfront.net/repdata%2Fdata%2Factivity.zip"
 zipfile = "data/activitymonitoringdata.zip"
@@ -39,8 +40,36 @@ unzip(zipfile, exdir="data")
 
 activity = read.csv("data/activity.csv")
 dim(activity)
+```
+
+```
+## [1] 17568     3
+```
+
+```r
 str(activity)
+```
+
+```
+## 'data.frame':	17568 obs. of  3 variables:
+##  $ steps   : int  NA NA NA NA NA NA NA NA NA NA ...
+##  $ date    : Factor w/ 61 levels "2012-10-01","2012-10-02",..: 1 1 1 1 1 1 1 1 1 1 ...
+##  $ interval: int  0 5 10 15 20 25 30 35 40 45 ...
+```
+
+```r
 summary(activity)
+```
+
+```
+##      steps               date          interval   
+##  Min.   :  0.0   2012-10-01:  288   Min.   :   0  
+##  1st Qu.:  0.0   2012-10-02:  288   1st Qu.: 589  
+##  Median :  0.0   2012-10-03:  288   Median :1178  
+##  Mean   : 37.4   2012-10-04:  288   Mean   :1178  
+##  3rd Qu.: 12.0   2012-10-05:  288   3rd Qu.:1766  
+##  Max.   :806.0   2012-10-06:  288   Max.   :2355  
+##  NA's   :2304    (Other)   :15840
 ```
 ## 1 What is mean total number of steps taken per day?
 
@@ -57,29 +86,47 @@ And also in the same plot:
 
 #### Calculate and report the mean and median total number of steps taken per day
 
-```{r 1-histo1, cache=TRUE}
+
+```r
 stepstotal  = tapply(activity$steps, activity$date, sum )
 hist(stepstotal, breaks=61,xlab="Total number of steps", ylab="Freq. (# of days with a given total # of steps)",main= "Histogram of total steps ")
 mu= mean(stepstotal, na.rm=TRUE)
 med = median(stepstotal , na.rm=TRUE)
 abline(v=mu, col="blue")
 abline(v=med, col="red")
-```  
+```
+
+![plot of chunk 1-histo1](figure/1-histo1.png) 
 
 Note: There큦 only one vertical red line because both values (mean and median) are very close.
 
 Total number of steps' Mean is:
-```{r cache=TRUE}
+
+```r
 mu
 ```
+
+```
+## [1] 10766
+```
 Total number of steps' Median is:
-```{r cache=TRUE}
+
+```r
 med
 ```
 
+```
+## [1] 10765
+```
+
 Just checking (and  helping in the plot interpretation), How many days with more than 20k steps?
-```{r}
+
+```r
 sum(stepstotal>20000, na.rm=TRUE)
+```
+
+```
+## [1] 2
 ```
 Exactly the 2 bars on the right (with a height of 1 each).
 
@@ -88,17 +135,25 @@ Exactly the 2 bars on the right (with a height of 1 each).
 
 #### Time series plot (i.e. type = "l") of the 5-minute interval (x-axis) and  the average number of steps taken, averaged across all days (y-axis)
 
-```{r 2-avgperinterval, cache=TRUE}
+
+```r
 interval = tapply(activity$steps, activity$interval, mean, na.rm=TRUE)
 plot(interval ~ unique(activity$interval) , type="l",ylab="Averaged number of steps across days", xlab="Interval", main="Cross-day Averaged Number of Steps per Interval")
-
 ```
+
+![plot of chunk 2-avgperinterval](figure/2-avgperinterval.png) 
 
 
 #### Which 5-minute interval, on average across all the days in the dataset, contains the maximum number of steps?  
 The interval with the maximum averaged number of steps and its mean number of steps are:
-```{r cache=TRUE}
+
+```r
 interval[which.max(interval)]
+```
+
+```
+##   835 
+## 206.2
 ```
 
 
@@ -106,10 +161,13 @@ interval[which.max(interval)]
 
 #### Total number of missing values in the dataset 
 The total number of Na큦 are:
-```{r cache=TRUE}
- 
-sum( is.na(activity$steps))
 
+```r
+sum( is.na(activity$steps))
+```
+
+```
+## [1] 2304
 ```
 
 #### Strategy for filling in all of the missing values in the dataset   
@@ -120,24 +178,28 @@ It's a simplistic strategy as It implies the assumption of an homogeneous distri
 
 #### Create a new dataset that is equal to the original dataset but with the missing data filled in  
 
-```{r cache=TRUE}
 
+```r
 interval.mean = tapply(activity$steps, activity$interval, mean, na.rm=TRUE)
 dfinterval = data.frame(interval=names(interval.mean), mean=interval.mean)
 complete = merge(activity, dfinterval, by="interval" )
 missing = is.na(complete$steps)
 complete[missing,]$steps = complete[missing,]$mean
-
 ```
 If  I check now the number of missing values like I did before, but with the complete dataset:
-```{r cache=TRUE}
-sum(is.na(complete$steps))
 
+```r
+sum(is.na(complete$steps))
+```
+
+```
+## [1] 0
 ```
 
 #### Histogram of the total number of steps taken each day and Calculate and report the mean and median total number of steps taken per day. 
 
-```{r 3-histoinputed, cache=TRUE}
+
+```r
 complete.total  = tapply(complete$steps, complete$date, sum )
 
 
@@ -146,9 +208,25 @@ mu= mean(complete.total, na.rm=TRUE)
 med = median(complete.total , na.rm=TRUE)
 abline(v=mu, col="blue")
 abline(v=med, col="red")
+```
+
+![plot of chunk 3-histoinputed](figure/3-histoinputed.png) 
+
+```r
 mu
+```
+
+```
+## [1] 10766
+```
+
+```r
 med
-```  
+```
+
+```
+## [1] 10766
+```
 
 #### Do these values differ from the estimates from the first part of the assignment? 
 The previous values for mean and median were mean= 10766 and median=10765, now they are both 10766 
@@ -159,7 +237,8 @@ The median did almost not changed also due to its closeness to the mean.
 
 Lets repeat  both histograms (with and without NA큦) and show them together: 
   
-```{r 4-histocompared, cache=TRUE, fig.width=10, fig.height=7, echo=TRUE}
+
+```r
 par(mfrow=c(1,2))
 hist(stepstotal, breaks=61,xlab="Total number of steps", ylab="Freq. (# of days with a given total # of steps)",main= "Histogram of total steps (with NA큦) ")
 mu= mean(stepstotal, na.rm=TRUE)
@@ -167,8 +246,9 @@ abline(v=mu, col="blue")
 hist(complete.total, breaks=61,xlab="Total number of steps", ylab="Freq. (# of days with a given total # of steps)",main= "Histogram of total steps (without NA큦) ")
 mu= mean(complete.total, na.rm=TRUE)
 abline(v=mu, col="blue")
+```
 
-```  
+![plot of chunk 4-histocompared](figure/4-histocompared.png) 
 
 By comparing both histograms we can see that the imputation of more steps with the mean value, has increased the number of days with a total number of steps previosly close to the mean. 
 The  histogram with the complete dataset (on the right) only differs in the central bins, which have higher y-axis values. (Please, notice the diferent scale of y-axis) 
@@ -182,31 +262,32 @@ The  histogram with the complete dataset (on the right) only differs in the cent
 Imputing the mean value to NA큦 in both weekends and weekdays will soften possible differences.
 So, I will use the original dataset to avoid bias from the imputed values. 
 
-```{r cache=TRUE,echo=FALSE, results="hide"}
-Sys.setlocale("LC_TIME", "English")
-```
 
-```{r cache=TRUE}
 
+
+```r
 weekend <- c("Saturday", "Sunday")
 activity$daytype <- ifelse(weekdays(as.Date(activity$date)) %in% weekend,"weekend", "weekday")
 activity$daytype = as.factor(activity$daytype)
 str(activity$daytype)
 ```
 
-#### Make a panel plot containing a time series plot (i.e. type = "l") of the 5-minute interval (x-axis) and the average number of steps taken, averaged across all weekday days or weekend days (y-axis).
-```{r echo=FALSE, results='hide'}
-if(!require(lattice)){install.packages("lattice")}
-library(lattice)
+```
+##  Factor w/ 2 levels "weekday","weekend": 1 1 1 1 1 1 1 1 1 1 ...
 ```
 
+#### Make a panel plot containing a time series plot (i.e. type = "l") of the 5-minute interval (x-axis) and the average number of steps taken, averaged across all weekday days or weekend days (y-axis).
 
-```{r 5-paneldaytype, cache=TRUE, fig.width=8, fig.height=8}
 
+
+
+```r
 stepsPerInterval = aggregate(steps ~ interval * daytype, data = activity,FUN = mean)
 
 xyplot(steps ~ interval | daytype, data=stepsPerInterval,  type="l", xlab="Interval", ylab="Number of Steps",layout = c(1,2))
 ```
+
+![plot of chunk 5-paneldaytype](figure/5-paneldaytype.png) 
 
 In this plot we can see a higher peek of activity early in the morning in weekdays as well as less activity during typical working hours compared with weekends.
 
